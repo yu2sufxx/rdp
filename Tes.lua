@@ -45,7 +45,7 @@ ffi.cdef[[
 
 
 --Update
-local script_version = "1.0.0"
+local script_version = "1.5.0"
 local version_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/version.txt"
 local script_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua"
 local update_available = false
