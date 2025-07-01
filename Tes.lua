@@ -211,7 +211,7 @@ imgui.OnFrame(function() return show_ui[0] end, function(player)
     imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.2, 0.6, 0.8, 1.0))
     imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.3, 0.7, 0.9, 1.0))
     imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0.1, 0.5, 0.7, 1.0))
-    if imgui.Button("UP", imgui.ImVec2(btn_w, btn_h)) then updateScriptFromURL("https://pastebin.com/raw") end
+    if imgui.Button("UP", imgui.ImVec2(btn_w, btn_h)) then updateScriptFromURL("https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua") end
     imgui.PopStyleColor(3)
 
     -- Tombol [-]
