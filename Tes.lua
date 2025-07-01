@@ -10,7 +10,7 @@
     Perubahan: Mengganti header default ImGui dengan header kustom yang bisa minimize.
 ]]--
 
-script_name("Menu Gabungan Profesional")
+script_name("Menu Gabungan")
 script_author("OpenAI GPT & AI Fixer & Yusuf")
 
 --[[ ================================================= ]]--
