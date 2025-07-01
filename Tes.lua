@@ -43,6 +43,14 @@ ffi.cdef[[
 --[[               VARIABEL GLOBAL & KONFIGURASI       ]]--
 --[[ ================================================= ]]--
 
+
+--Update
+local script_version = "1.0.0"
+local version_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/version.txt"
+local script_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua"
+local update_available = false
+local latest_version = "?"
+
 -- GUI State
 local show_ui = new.bool(false)
 local minimized = new.bool(false) -- Variabel baru untuk status minimize
@@ -69,6 +77,13 @@ local ini_defaults = {
 local ini = inicfg.load(ini_defaults, ini_file)
 
 local minimize = new.bool(false)
+
+local show_popup = new.bool(false)
+
+local screenX, screenY = getScreenResolution()
+local MONET_DPI_SCALE = rawget(_G, 'MONET_DPI_SCALE') or (screenY / 720)
+
+
 
 -- Translator State
 local enabled_translator = new.bool(true)
@@ -209,10 +224,43 @@ imgui.OnFrame(function() return show_ui[0] end, function(player)
     -- Tombol 🔄
     imgui.SetCursorPos(imgui.ImVec2(region - btn_w * 2 - spacing - 5, btn_y))
     imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.2, 0.6, 0.8, 1.0))
-    imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.3, 0.7, 0.9, 1.0))
-    imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0.1, 0.5, 0.7, 1.0))
-    if imgui.Button("UP", imgui.ImVec2(btn_w, btn_h)) then updateScriptFromURL("https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua") end
-    imgui.PopStyleColor(3)
+    imgui.PushStyleColor(imgui.Col.ButtonHovered,imgui.ImVec4(0.3, 0.7, 0.9, 1.0))
+    imgui.PushStyleColor(imgui.Col.ButtonActive,imgui.ImVec4(0.1, 0.5, 0.7, 1.0))
+    -- Tombol UP (Update)
+if imgui.Button("UP", imgui.ImVec2(btn_w, btn_h)) then
+    imgui.OpenPopup("KonfirmasiUpdate")
+end
+     imgui.PopStyleColor(3)
+
+-- Render popup langsung di dalam jendela utama
+if imgui.BeginPopupModal("KonfirmasiUpdate", nil, imgui.WindowFlags.AlwaysAutoResize) then
+        imgui.TextWrapped("Apakah kamu yakin ingin memperbarui script sekarang?")
+        imgui.Dummy(imgui.ImVec2(0, 10))
+
+        if imgui.Button(" Ya", imgui.ImVec2(100, 35)) then
+            print(">> Memulai update script...")
+            updateScript("https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua")
+            Notifications.Show("Update berhasil!", Notifications.TYPE.OK)
+            imgui.CloseCurrentPopup()
+        end
+
+        imgui.SameLine()
+
+        if imgui.Button(" Batal", imgui.ImVec2(100, 35)) then
+            print(">> Batal update.")
+            imgui.CloseCurrentPopup()
+        end
+
+        imgui.SameLine()
+
+        if imgui.Button("Cek Update", imgui.ImVec2(130, 35)) then
+            print(">> Cek pembaruan...")
+            cekUpdateOnline()
+        end
+
+        imgui.EndPopup()
+    end
+      
 
     -- Tombol [-]
     imgui.SetCursorPos(imgui.ImVec2(region - btn_w * 3 - spacing * 2 - 5, btn_y))
@@ -379,6 +427,20 @@ imgui.OnFrame(function() return show_translator_log[0] end, function()
     imgui.End()
 end)
 
+imgui.OnFrame(function() return show_popup[0] end, function()
+    if imgui.BeginPopupModal("PopupSederhana", nil, imgui.WindowFlags.AlwaysAutoResize) then
+        imgui.Text("Ini adalah popup sederhana!")
+
+        imgui.Dummy(imgui.ImVec2(0, 10))
+        if imgui.Button("Tutup") then
+            imgui.CloseCurrentPopup()
+            show_popup[0] = false -- WAJIB: supaya bisa dibuka lagi nanti
+        end
+
+        imgui.End()
+    end
+end)
+
 -- Jendela Status Autopilot
 imgui.OnFrame(function() return ap.active.status_window[0] end, function()
     local sw, sh = getScreenResolution()
@@ -505,24 +567,43 @@ function urlencode(str)
     return str:gsub("\n", "\r\n"):gsub("([^%w%-_.~])", function(c) return string.format("%%%02X", string.byte(c)) end)
 end
 
-function updateScriptFromURL(url)
+function cekUpdateOnline()
     lua_thread.create(function()
-        sampAddChatMessage("[Updater] Mengunduh dari: " .. url, 0x00FF00)
-        local body, code = http.request(url)
+        sampAddChatMessage("[Updater] Mengecek versi terbaru...", 0x00FF00)
+        local body, code = http.request(version_url)
+        if code == 200 and body then
+            latest_version = body:match("([%d%.]+)") or "?.?.?"
+            if latest_version ~= script_version then
+                update_available = true
+                sampAddChatMessage("[Updater] Versi baru tersedia: " .. latest_version, 0x00FF00)
+            else
+                update_available = false
+                sampAddChatMessage("[Updater] Script sudah versi terbaru (" .. script_version .. ")", 0x00FF00)
+            end
+        else
+            sampAddChatMessage("[Updater] Gagal mengecek versi. HTTP: " .. tostring(code), 0xFF0000)
+        end
+    end)
+end
+
+function updateScript()
+    lua_thread.create(function()
+        sampAddChatMessage("[Updater] Mengunduh update...", 0x00FF00)
+        local body, code = http.request(script_url)
         if code == 200 and body then
             local path = thisScript().path
             local f = io.open(path, "w")
             if f then
                 f:write(body)
                 f:close()
-                sampAddChatMessage("[Updater] Script berhasil diupdate. Me-reload script...", 0x00FF00)
+                sampAddChatMessage("[Updater] Berhasil update ke versi " .. latest_version .. ". Me-reload script...", 0x00FF00)
                 wait(500)
-                reloadScripts() -- ✅ Langsung reload semua script aktif
+                reloadScripts()
             else
-                sampAddChatMessage("[Updater] Gagal menyimpan file!", 0xFF0000)
+                sampAddChatMessage("[Updater] Gagal menyimpan script!", 0xFF0000)
             end
         else
-            sampAddChatMessage("[Updater] Gagal mengunduh. HTTP Code: " .. tostring(code), 0xFF0000)
+            sampAddChatMessage("[Updater] Gagal mengunduh file. HTTP: " .. tostring(code), 0xFF0000)
         end
     end)
 end
