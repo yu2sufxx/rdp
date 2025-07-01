@@ -177,7 +177,7 @@ imgui.OnFrame(function() return show_ui[0] end, function(player)
         imgui.PopStyleColor(3)
 
         -- Judul tengah
-        local title = u8"Mod Menu Gabungan (5-in-1)"
+        local title = u8"Mod Menu"
         local text_w = imgui.CalcTextSize(title).x
         imgui.SetCursorPosY(6)
         imgui.SetCursorPosX((region / 2) - (text_w / 2))
@@ -223,7 +223,7 @@ imgui.OnFrame(function() return show_ui[0] end, function(player)
     imgui.PopStyleColor(3)
 
     -- Judul tengah
-    local title = u8"Mod Menu "
+    local title = u8"Mod Menu 1"
     local text_w = imgui.CalcTextSize(title).x
     imgui.SetCursorPosY(6)
     imgui.SetCursorPosX((region / 2) - (text_w / 2))
