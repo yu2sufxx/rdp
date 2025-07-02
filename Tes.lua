@@ -46,7 +46,7 @@ ffi.cdef[[
 --[[ ================================================= ]]--
 
 -- Update
-local script_version = "2.3.0"
+local script_version = "2.5.0"
 local version_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/version.txt"
 local script_url = "https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua"
 local update_available = false
@@ -617,6 +617,10 @@ function sampev.onSendBulletSync(data)
     end
 
     local targetId, targetPed, targetPos = getBestTargetInFOV()
+      
+        local randX = math.random(-3, 3) / 100.0
+        local randY = math.random(-3, 3) / 100.0
+        local randZ = math.random(-3, 3) / 100.0
 
     if targetId and targetPos then
         data.targetType = 1 -- 1 = Player
@@ -626,7 +630,6 @@ function sampev.onSendBulletSync(data)
 
     return true -- Kirim data (baik yang asli maupun yang sudah dimodifikasi)
 end
-
 
 --[[ ================================================= ]]--
 --[[           FUNGSI TRANSLATOR & UPDATE            ]]--
