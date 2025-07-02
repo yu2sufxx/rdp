@@ -239,7 +239,7 @@ if imgui.BeginPopupModal("KonfirmasiUpdate", nil, imgui.WindowFlags.AlwaysAutoRe
 
         if imgui.Button(" Ya", imgui.ImVec2(100, 35)) then
             print(">> Memulai update script...")
-            updateScript("https://raw.githubusercontent.com/yu2sufxx/rdp/refs/heads/main/Tes.lua")
+            updateScript()
             imgui.CloseCurrentPopup()
         end
 
